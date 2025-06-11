@@ -5,8 +5,8 @@ import NextAuth from "next-auth";
 // import EmailProvider from 'next-auth/providers/email'
 import GitHubProvider from "next-auth/providers/github";
 import mongoose from "mongoose";
-import User from "@/public/models/user";
-import payment from "@/public/models/payment";
+import User from "@/lib/models/user";
+import payment from "@/lib/models/payment";
 import connectDb from "@/db/connectdb";
 
 // ✅ Define the config object separately
