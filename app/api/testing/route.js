@@ -101,13 +101,6 @@ export async function POST(req) {
       { email: { $regex: new RegExp(`^${email}$`, "i") } },
       {
         $set: {
-          name: {
-            first: firstName,
-            last: lastName,
-          },
-          username: username,
-          coverimage: coverPicture,
-          profileimage: profilePicture,
           company: company,
           phone: phone,
           website: website,
@@ -122,10 +115,8 @@ export async function POST(req) {
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    return NextResponse.json(
-      { message: "Data Stored successfully" },
-      { status: 200 }
-    );
+    console.log("Updated user:", JSON.stringify(user, null, 2));
+    return NextResponse.json({ message: "Name updated", user });
   } catch (error) {
     console.error("Update error:", error);
 
