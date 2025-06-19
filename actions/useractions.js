@@ -7,7 +7,7 @@ import payment from "@/lib/models/payment";
 export const initiate = async (amount, to_user, paymentfrom) => {
   await connectDb();
   var instance = new Razorpay({
-    key_id: process.env.RAZOR_KEY,
+    key_id: process.env.NEXT_PUBLIC_RAZOR_KEY,
     key_secret: process.env.RAZOR_SECRET,
   });
   let options = {
@@ -15,12 +15,14 @@ export const initiate = async (amount, to_user, paymentfrom) => {
     currency: "INR",
   };
   let order = await instance.orders.create(options);
-  await payment.create({
+  const savedPayment = await payment.create({
     oid: order.id,
     amount: amount,
     to_user: to_user,
     name: paymentfrom.name,
     message: paymentfrom.message,
   });
+
+  console.log("✅ Payment entry created:", savedPayment);
   return order;
 };
