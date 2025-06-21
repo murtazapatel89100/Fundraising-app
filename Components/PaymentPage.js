@@ -1,38 +1,50 @@
 "use client";
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Script from "next/script";
-import { useEffect } from "react";
-import { initiate } from "@/actions/useractions";
 import Image from "next/image";
 import Link from "next/link";
 import FailedAlert from "./FailedAlert";
 import SucsessAlert from "./SucsessAlert";
+import { initiate, getMessages } from "@/actions/useractions";
 
 const PaymentPage = ({ username }) => {
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [paymentForm, setpaymentForm] = useState({
+  const [showFailure, setShowFailure] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [paymentForm, setPaymentForm] = useState({
     name: "",
     amount: 0,
     message: "",
   });
+
   useEffect(() => {
     const url = new URL(window.location.href);
     const paymentDone = url.searchParams.get("paymentdone");
 
+    const fetchMessages = async () => {
+      const result = await getMessages(username);
+      setMessages(result);
+    };
+    fetchMessages();
+
     if (paymentDone === "true") {
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000); // optional auto-dismiss
+      setTimeout(() => setShowSuccess(false), 3000);
+    } else if (paymentDone === "false") {
+      setShowFailure(true);
+      setTimeout(() => setShowFailure(false), 3000);
     }
-  }, []);
+  }, [username]);
+
   const handleChange = (e) => {
-    setpaymentForm({ ...paymentForm, [e.target.name]: e.target.value });
+    setPaymentForm({ ...paymentForm, [e.target.name]: e.target.value });
   };
+
   const pay = async (amount) => {
     if (amount < 1) {
       setShowError(true);
-      setTimeout(() => setShowError(false), 3000); // auto-dismiss
+      setTimeout(() => setShowError(false), 3000);
       return;
     }
     const rupees = (amount * 100).toString();
@@ -40,12 +52,12 @@ const PaymentPage = ({ username }) => {
     let orderId = order.id;
     var options = {
       key: process.env.NEXT_PUBLIC_RAZOR_KEY,
-      amount: rupees, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      amount: rupees,
       currency: "INR",
       name: "GET ME A CHAI",
       description: "Test Transaction",
-      order_id: orderId, // This is the order_id created in the backend
-      callback_url: `${process.env.NEXT_PUBLIC_URL}/api/razorpay`, // Your success URL
+      order_id: orderId,
+      callback_url: `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
       prefill: {
         name: "Gaurav Kumar",
         email: "gaurav.kumar@example.com",
@@ -59,14 +71,16 @@ const PaymentPage = ({ username }) => {
     const rzp = new Razorpay(options);
     rzp.open();
   };
+
   return (
     <>
-      <>
-        <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
-      </>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-2 items-end">
         {showSuccess && <SucsessAlert text={`Payment successfully done`} />}
+        {showFailure && <FailedAlert text={`Payment failed`} />}
       </div>
+
+      {/* Banner */}
       <div className="relative w-full">
         <Image
           className="object-cover w-full h-[50vh]"
@@ -85,254 +99,74 @@ const PaymentPage = ({ username }) => {
           />
         </div>
       </div>
+
+      {/* Profile */}
       <div className="mt-24 flex flex-col items-center justify-center text-center">
         <div className="font-bold text-xl">@{username}</div>
         <div className="text-slate-400 text-sm">
-          Creating Animated art for VTT's
+          Creating Animated art for VTT&apos;s
         </div>
         <div className="text-slate-400 text-sm">
           17,884 members · 98 posts · $17,910/release
         </div>
       </div>
-      <div className="m-5 relative flex mx-auto justify-center items-stretch gap-3 w-[80%]">
-        <div className="bg-gray-900 h-[80vh] overflow-y-auto supporters p-8 w-1/2 rounded-2xl">
-          <ul>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-            <li className="flex my-2 items-center gap-2">
-              <Image src={"/avatar.gif"} alt="image" width={25} height={25} />
-              <b>xyz</b> doated <b>$1000</b> with a{" "}
-              <b>
-                <i>message</i>
-              </b>
-            </li>
-          </ul>
-        </div>
-        <div className="bg-gray-900 payment gap-3 p-8 w-1/2 flex flex-col justify-center rounded-2xl">
+
+      {/* Content Area */}
+      <div className="m-5 flex flex-col lg:flex-row-reverse gap-5 w-[90%] mx-auto">
+        {/* Form Section */}
+        <div className="bg-gray-900 p-8 w-full lg:w-1/2 flex flex-col justify-center rounded-2xl lg:min-h-[80vh] lg:self-center">
           {showError && <FailedAlert text={`Minimum amount should be ₹1`} />}
-          <label
-            htmlFor="helper-text"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Please Fill the requried Details
+          <label className="block mb-2 text-sm font-medium text-white">
+            Please Fill the required Details
           </label>
           <input
             required
             type="text"
-            id="helper-text"
-            aria-describedby="helper-text-explanation"
             name="name"
             onChange={handleChange}
             value={paymentForm.name}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 mb-3 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter Your Name"
           />
           <input
             required
             type="number"
-            id="helper-text"
-            aria-describedby="helper-text-explanation"
+            name="amount"
             onChange={handleChange}
             value={paymentForm.amount}
-            name="amount"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 mb-3 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter Your Amount"
           />
           <input
             required
             type="text"
-            id="helper-text"
-            aria-describedby="helper-text-explanation"
+            name="message"
             onChange={handleChange}
             value={paymentForm.message}
-            name="message"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 mb-3 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter Your Message"
           />
           <div className="flex gap-2 mt-3">
-            <button
-              onClick={() => {
-                setpaymentForm({ ...paymentForm, amount: 10 });
-              }}
-              className="bg-slate-800 cursor-pointer rounded-lg p-2"
-            >
-              Pay ₹10
-            </button>
-            <button
-              onClick={() => {
-                setpaymentForm({ ...paymentForm, amount: 30 });
-              }}
-              className="bg-slate-800 cursor-pointer rounded-lg p-2"
-            >
-              Pay ₹30
-            </button>
-            <button
-              onClick={() => {
-                setpaymentForm({ ...paymentForm, amount: 50 });
-              }}
-              className="bg-slate-800 cursor-pointer rounded-lg p-2"
-            >
-              Pay ₹50
-            </button>
+            {[10, 30, 50].map((amt) => (
+              <button
+                key={amt}
+                onClick={() =>
+                  setPaymentForm((prev) => ({ ...prev, amount: amt }))
+                }
+                className="bg-slate-800 cursor-pointer rounded-lg p-2 text-white"
+              >
+                Pay ₹{amt}
+              </button>
+            ))}
           </div>
           <button
             type="button"
-            onClick={() => {
-              pay(paymentForm.amount);
-            }}
-            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-2 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 "
+            onClick={() => pay(paymentForm.amount)}
+            className="mt-4 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br font-medium rounded-lg text-sm px-5 py-2.5 text-center shadow-lg"
           >
             PAY
           </button>
-          <p
-            id="helper-text-explanation"
-            className="mt-2 text-sm text-gray-500 dark:text-gray-400"
-          >
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             We’ll never share your details. Read our{" "}
             <Link
               href={"/TACs"}
@@ -342,6 +176,30 @@ const PaymentPage = ({ username }) => {
             </Link>
             .
           </p>
+        </div>
+
+        {/* Messages Section */}
+        <div className="bg-gray-900 h-[80vh] overflow-y-auto p-8 w-full lg:w-1/2 rounded-2xl">
+          <ul>
+            {messages.map((msg, index) => (
+              <li
+                key={index}
+                className="flex my-2 items-center gap-2 text-white"
+              >
+                <Image
+                  src={"/avatar.gif"}
+                  alt="avatar"
+                  width={25}
+                  height={25}
+                />
+                <b>{msg.name}</b> donated amount <b>₹{msg.amountdone}</b> with{" "}
+                message{" "}
+                <b>
+                  <i>{msg.message}</i>
+                </b>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </>

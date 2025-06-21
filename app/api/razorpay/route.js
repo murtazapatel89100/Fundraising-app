@@ -45,12 +45,11 @@ export const POST = async (req) => {
       { new: true }
     );
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_URL}/${updatedPayment.to_user}?paymentdone=true`
+      `${process.env.NEXT_PUBLIC_URL}/user/${updatedPayment.to_user}?paymentdone=true`
     );
   } else {
-    return NextResponse.json({
-      success: false,
-      message: "Payment varification Failed",
-    });
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_URL}/user/${updatedPayment.to_user}?paymentdone=false`
+    );
   }
 };
